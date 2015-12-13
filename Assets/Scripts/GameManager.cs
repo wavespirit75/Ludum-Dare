@@ -33,7 +33,7 @@ public class GameManager : MonoBehaviour {
 
 	public float gameOverTime = 3.0f;
 
-	float powerUPTime = 5.0f;
+	float powerUPTime = 1.0f;
 
 	float powerUpTimer = 0.0f;
 
@@ -294,7 +294,7 @@ public class GameManager : MonoBehaviour {
 
 		int width = 150;
 		int initialX = 80;
-		int initialY = 525;
+		int initialY = Screen.height - 25;
 		GameObject HUD = Instantiate(playerHUD);
 		HUD.transform.SetParent(HUDCanvas.transform);
 		HUD.transform.position = new Vector3(initialX + p.playerIndex * width, initialY, 0);
@@ -395,8 +395,8 @@ public class GameManager : MonoBehaviour {
 				}
 			}
 
-			Destroy(powerUpEaten.gameObject);
 			onFieldPowerUps.Remove(powerUpEaten);
+			Destroy(powerUpEaten.gameObject);
 		}
 	}
 }
