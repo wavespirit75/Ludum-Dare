@@ -101,7 +101,7 @@ public class Player : MonoBehaviour {
 			HUD.UpdateHealthBar(100 - (gameOverTimer / gameManager.gameOverTime * 100));
 		}
 
-		if (Time.time >= nextTime) 
+		if (nextTime > interval) 
 		{			
 			if(gameManager.CheckNextPosition(playerIndex, head, currentDirection))
 			{
@@ -138,10 +138,10 @@ public class Player : MonoBehaviour {
 			{
 				//hit something need to count the game over timer
 				isCountingGameOver = true;
-			}
-
-			nextTime += interval; 			
+			}	
+			nextTime = 0;
 		}
+		nextTime += Time.deltaTime;
 
 		if(Input.GetKeyDown(left))
 		{

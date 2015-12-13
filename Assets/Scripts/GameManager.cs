@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEngine.SceneManagement;
 
 public enum GameState
 {
@@ -9,6 +10,8 @@ public enum GameState
 }
 
 public class GameManager : MonoBehaviour {
+
+	public static int numberOfPlayers;
 
 	public GameObject playerPrefab;
 
@@ -110,16 +113,22 @@ public class GameManager : MonoBehaviour {
 				}
 				else
 				{
-					overlay.nameText.text = "Player" + winningPlayer.playerIndex;
+					overlay.nameText.text = "Player " + winningPlayer.playerIndex;
 					overlay.headLogo.sprite = winningPlayer.HUD.headLogos[winningPlayer.playerIndex];
 				}
 
 				overlay.restartDelegate = delegate() {
-					Destroy(gameOverOverlay);
-					StartNewGame();
+					SceneManager.LoadScene(1);
+//					Destroy(gameOverOverlay);
+//					StartNewGame();
 				};
 			}
 		}
+	}
+
+	void ClearScene()
+	{
+
 	}
 
 	void StartNewGame()
@@ -132,13 +141,10 @@ public class GameManager : MonoBehaviour {
 
 		GenerateBackgroundTiles(borderWidth, borderHeight);
 
-		AddPlayer(KeyCode.LeftArrow, KeyCode.RightArrow);
-
-		AddPlayer(KeyCode.A, KeyCode.D);
-
-		AddPlayer(KeyCode.Q, KeyCode.E);
-
-		AddPlayer(KeyCode.Z, KeyCode.C);
+		for(int i = 0 ; i < numberOfPlayers ; i++)
+		{
+			AddPlayer();
+		}
 	}
 
 	public bool CheckNextPosition(int playerIndex, GameObject head, Direction playerDirection)
@@ -226,6 +232,25 @@ public class GameManager : MonoBehaviour {
 					}						
 				}
 			}
+		}
+	}
+
+	void AddPlayer()
+	{
+		switch(players.Count)
+		{
+		case 0:
+			AddPlayer(KeyCode.LeftArrow, KeyCode.RightArrow);
+			break;
+		case 1:
+			AddPlayer(KeyCode.A, KeyCode.D);
+			break;
+		case 2:
+			AddPlayer(KeyCode.Q, KeyCode.E);
+			break;
+		case 3:
+			AddPlayer(KeyCode.Z, KeyCode.C);
+			break;
 		}
 	}
 

@@ -48,6 +48,7 @@
      <Compile Include="Assets\Scripts\BodyParts.cs" />
      <Compile Include="Assets\Scripts\GameManager.cs" />
      <Compile Include="Assets\Scripts\GameOverOverlay.cs" />
+     <Compile Include="Assets\Scripts\Menu.cs" />
      <Compile Include="Assets\Scripts\Player.cs" />
      <Compile Include="Assets\Scripts\PlayerHUD.cs" />
      <Compile Include="Assets\Scripts\PowerUp.cs" />
