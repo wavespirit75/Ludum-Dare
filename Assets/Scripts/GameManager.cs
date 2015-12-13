@@ -33,7 +33,7 @@ public class GameManager : MonoBehaviour {
 
 	public float gameOverTime = 3.0f;
 
-	float powerUPTime = 1.0f;
+	float powerUPTime = 3.0f;
 
 	float powerUpTimer = 0.0f;
 
@@ -108,7 +108,7 @@ public class GameManager : MonoBehaviour {
 
 				if(winningPlayer == null)
 				{
-					overlay.nameText.text = "No Snake";
+					overlay.nameText.text = "No Body";
 					overlay.headLogo.gameObject.SetActive(false);
 				}
 				else
@@ -243,13 +243,13 @@ public class GameManager : MonoBehaviour {
 			AddPlayer(KeyCode.LeftArrow, KeyCode.RightArrow);
 			break;
 		case 1:
-			AddPlayer(KeyCode.A, KeyCode.D);
+			AddPlayer(KeyCode.Alpha1, KeyCode.Q);
 			break;
 		case 2:
-			AddPlayer(KeyCode.Q, KeyCode.E);
+			AddPlayer(KeyCode.Z, KeyCode.X);
 			break;
 		case 3:
-			AddPlayer(KeyCode.Z, KeyCode.C);
+			AddPlayer(KeyCode.N, KeyCode.M);
 			break;
 		}
 	}
