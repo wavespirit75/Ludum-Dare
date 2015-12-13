@@ -6,7 +6,7 @@
     <ProductVersion>10.0.20506</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <RootNamespace></RootNamespace>
-    <ProjectGuid>{435B829B-09A0-780D-B64D-B2A9CDD92045}</ProjectGuid>
+    <ProjectGuid>{158D0937-1968-E4AF-8C7E-D1C57DBBFA3D}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <AssemblyName>Assembly-CSharp</AssemblyName>
@@ -47,6 +47,7 @@
   <ItemGroup>
      <Compile Include="Assets\Scripts\BodyParts.cs" />
      <Compile Include="Assets\Scripts\GameManager.cs" />
+     <Compile Include="Assets\Scripts\Menu.cs" />
      <Compile Include="Assets\Scripts\Player.cs" />
      <Compile Include="Assets\Scripts\PlayerHUD.cs" />
      <Compile Include="Assets\Scripts\PowerUp.cs" />
