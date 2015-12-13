@@ -16,6 +16,8 @@ public class GameManager : MonoBehaviour {
 
 	public GameObject playerHUD;
 
+	public GameObject gameOverOverlayPrefab;
+
 	public GameObject[] powerUps;
 
 	public GameObject[] tiles; 
@@ -42,25 +44,13 @@ public class GameManager : MonoBehaviour {
 
 	List<PowerUp> onFieldPowerUps;
 
+	GameObject gameOverOverlay;
+
 	// Use this for initialization
 	void Start () {
 		currentState = GameState.Playing;
 
-		players = new List<Player>();
-
-		walls = new List<GameObject>();
-
-		onFieldPowerUps = new List<PowerUp>();
-
-		GenerateBackgroundTiles(borderWidth, borderHeight);
-
-		AddPlayer(KeyCode.LeftArrow, KeyCode.RightArrow);
-
-//		AddPlayer(KeyCode.A, KeyCode.D);
-//
-//		AddPlayer(KeyCode.Q, KeyCode.E);
-//
-//		AddPlayer(KeyCode.Z, KeyCode.C);
+		StartNewGame();
 	}
 	
 	// Update is called once per frame
@@ -77,16 +67,78 @@ public class GameManager : MonoBehaviour {
 				powerUpTimer += Time.deltaTime;
 			}
 
+			int loseCount = 0;
 			foreach(Player player in players)
 			{				
 				if(player.gameOverTimer > gameOverTime)
 				{
-					currentState = GameState.End;
-					player.AnimateDead();
-					Debug.Log("Player " + player.playerIndex + " lose!!");
+					if(!player.isGameOver)
+					{
+						player.AnimateDead();
+						player.isGameOver = true;
+
+						Debug.Log("Player " + player.playerIndex + " lose!!");
+					}
 				}
+
+				if(player.isGameOver)
+					loseCount++;
+			}
+
+			if(loseCount >= players.Count - 1)
+			{
+				Player winningPlayer = null;
+
+				foreach(Player player in players)
+				{
+					if(!player.isGameOver)
+						winningPlayer = player;
+				}
+
+				currentState = GameState.End;
+
+				gameOverOverlay = Instantiate(gameOverOverlayPrefab);
+				gameOverOverlay.transform.SetParent(HUDCanvas.transform);
+				gameOverOverlay.transform.localPosition = Vector3.zero;
+
+				GameOverOverlay overlay = gameOverOverlay.GetComponent<GameOverOverlay>();
+
+				if(winningPlayer == null)
+				{
+					overlay.nameText.text = "No Snake";
+					overlay.headLogo.gameObject.SetActive(false);
+				}
+				else
+				{
+					overlay.nameText.text = "Player" + winningPlayer.playerIndex;
+					overlay.headLogo.sprite = winningPlayer.HUD.headLogos[winningPlayer.playerIndex];
+				}
+
+				overlay.restartDelegate = delegate() {
+					Destroy(gameOverOverlay);
+					StartNewGame();
+				};
 			}
 		}
+	}
+
+	void StartNewGame()
+	{
+		players = new List<Player>();
+
+		walls = new List<GameObject>();
+
+		onFieldPowerUps = new List<PowerUp>();
+
+		GenerateBackgroundTiles(borderWidth, borderHeight);
+
+		AddPlayer(KeyCode.LeftArrow, KeyCode.RightArrow);
+
+		AddPlayer(KeyCode.A, KeyCode.D);
+
+		AddPlayer(KeyCode.Q, KeyCode.E);
+
+		AddPlayer(KeyCode.Z, KeyCode.C);
 	}
 
 	public bool CheckNextPosition(int playerIndex, GameObject head, Direction playerDirection)
@@ -111,9 +163,8 @@ public class GameManager : MonoBehaviour {
 
 		foreach(Player player in players)
 		{
-			if(player.CheckPositionBelongsToPlayer(nextPos))
-			{
-				//TODO show timer
+			if(!player.isGameOver && player.CheckPositionBelongsToPlayer(nextPos))
+			{				
 				return false;
 			}
 		}
@@ -181,22 +232,27 @@ public class GameManager : MonoBehaviour {
 	void AddPlayer(KeyCode leftKey, KeyCode rightKey)
 	{
 		Vector3 playerInitialPos;
+		Direction playerInitialDirection;
 
 		if(players.Count == 0)
 		{
 			playerInitialPos = new Vector3(5, 0, 0);
+			playerInitialDirection = Direction.Up;
 		}
 		else if(players.Count == 1)
 		{
 			playerInitialPos = new Vector3(0, 5, 0);
+			playerInitialDirection = Direction.Left;
 		}
 		else if(players.Count == 2)
 		{
 			playerInitialPos = new Vector3(-5, 0, 0);
+			playerInitialDirection = Direction.Down;
 		}
 		else
 		{
 			playerInitialPos = new Vector3(0, -5, 0);
+			playerInitialDirection = Direction.Right;
 		}
 
 		GameObject player = Instantiate(playerPrefab);
@@ -207,6 +263,7 @@ public class GameManager : MonoBehaviour {
 		p.playerIndex = players.Count;
 		p.left = leftKey;
 		p.right = rightKey;
+		p.currentDirection = playerInitialDirection;
 
 		players.Add(p);
 
@@ -250,7 +307,7 @@ public class GameManager : MonoBehaviour {
 
 			foreach(Player player in players)
 			{
-				if(player.CheckPositionBelongsToPlayer((Vector3)newPos))
+				if(!player.isGameOver && player.CheckPositionBelongsToPlayer((Vector3)newPos))
 				{
 					notEmpty = true;
 					break;

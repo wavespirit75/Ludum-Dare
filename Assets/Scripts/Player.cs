@@ -34,9 +34,11 @@ public class Player : MonoBehaviour {
 
 	public float gameOverTimer;
 
-	bool isCountingGameOver = false;
+	public bool isGameOver;
 
-	Direction currentDirection;
+	public Direction currentDirection;
+
+	bool isCountingGameOver = false;
 
 	Direction previousMoveDirection; // this is to prevent the head to face back itself
 
@@ -48,17 +50,38 @@ public class Player : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
+		isGameOver = false;
+
 		head = Instantiate(headPrefabs[playerIndex]);
 		head.transform.SetParent(transform);
 		head.transform.localPosition = Vector3.zero;
 
+		Vector3 tailPosition = Vector3.zero;
+		if(currentDirection == Direction.Up)
+		{
+			tailPosition = new Vector3(0, -1, 0);
+		}
+		else if(currentDirection == Direction.Down)
+		{
+			tailPosition = new Vector3(0, 1, 0);
+		}
+		else if(currentDirection == Direction.Left)
+		{
+			tailPosition = new Vector3(1, 0, 0);
+		}
+		else
+		{
+			tailPosition = new Vector3(-1, 0, 0);
+		}
+
 		tail = Instantiate(bodyPrefabs[playerIndex]);
 		tail.transform.SetParent(transform);
-		tail.transform.localPosition = new Vector3(-1, 0 , 0);
+		tail.transform.localPosition = tailPosition;
 
 		bodies = new List<BodyParts>();
 
-		ChangeCurrentDirection(Direction.Right);
+		//set the initial direction for the head
+		ChangeCurrentDirection(currentDirection);
 
 		AddBodyPart();
 	}
@@ -67,7 +90,7 @@ public class Player : MonoBehaviour {
 	float nextTime = 0;
 	// Update is called once per frame
 	void Update () {
-		if(gameManager.currentState == GameState.End)
+		if(gameManager.currentState == GameState.End || isGameOver)
 		{			
 			return;
 		}
