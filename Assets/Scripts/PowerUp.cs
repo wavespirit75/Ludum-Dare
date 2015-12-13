@@ -12,6 +12,8 @@ public enum PowerUpType
 
 public class PowerUp : MonoBehaviour {
 
+	public AudioClip powerUpSound;
+
 	public PowerUpType type;
 
 	// Use this for initialization
@@ -41,5 +43,7 @@ public class PowerUp : MonoBehaviour {
 			player.DecreaseBodyPart();
 			break;
 		}
+
+		AudioSource.PlayClipAtPoint(powerUpSound, transform.position);
 	}
 }

@@ -91,6 +91,8 @@ public class Player : MonoBehaviour {
 		ChangeCurrentDirection(currentDirection);
 
 		AddBodyPart();
+		AddBodyPart();
+		AddBodyPart();
 	}
 		
 	float interval = 0.75f;		//this is the movement speed
@@ -172,18 +174,18 @@ public class Player : MonoBehaviour {
 				ChangeCurrentDirection(turnedDirection);
 		}
 
-		if (id == 0)
-		{
-			if(Input.GetKeyDown(KeyCode.UpArrow))
-			{
-				AddBodyPart();
-			}
-
-			if(Input.GetKeyDown(KeyCode.DownArrow))
-			{
-				DecreaseBodyPart();
-			}
-		}
+//		if (id == 0)
+//		{
+//			if(Input.GetKeyDown(KeyCode.UpArrow))
+//			{
+//				AddBodyPart();
+//			}
+//
+//			if(Input.GetKeyDown(KeyCode.DownArrow))
+//			{
+//				DecreaseBodyPart();
+//			}
+//		}
 	}
 
 	public void AddBodyPart()
