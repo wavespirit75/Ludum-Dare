@@ -38,6 +38,8 @@ public class Player : MonoBehaviour {
 
 	Direction currentDirection;
 
+	Direction previousMoveDirection; // this is to prevent the head to face back itself
+
 	List<BodyParts> bodies;
 
 	void Awake() {
@@ -86,6 +88,7 @@ public class Player : MonoBehaviour {
 
 				Vector3 previousPos = head.transform.position;
 				MoveObjectInDirection(head, currentDirection);
+				previousMoveDirection = currentDirection;
 				
 				GameObject frontObject = head;
 				Vector3 previousBodyPos;
@@ -104,6 +107,9 @@ public class Player : MonoBehaviour {
 
 				ChangeRotationForObject(tail, GetDirection(previousPos, tail.transform.position));
 				tail.transform.position = previousPos;
+
+				//check if the new head position got any powerups
+				gameManager.CheckPowerUpAtLocation(head.transform.position, this);
 			}
 			else
 			{
@@ -113,15 +119,21 @@ public class Player : MonoBehaviour {
 
 			nextTime += interval; 			
 		}
-		
+
 		if(Input.GetKeyDown(left))
 		{
-			ChangeCurrentDirection(GetTurnedDirection(currentDirection, Direction.Left));
+			Direction turnedDirection = GetTurnedDirection(currentDirection, Direction.Left);
+
+			if(turnedDirection != OppositeDirection(previousMoveDirection))
+				ChangeCurrentDirection(turnedDirection);
 		}
 
 		if(Input.GetKeyDown(right))
 		{			
-			ChangeCurrentDirection(GetTurnedDirection(currentDirection, Direction.Right));
+			Direction turnedDirection = GetTurnedDirection(currentDirection, Direction.Right);
+
+			if(turnedDirection != OppositeDirection(previousMoveDirection))
+				ChangeCurrentDirection(turnedDirection);
 		}
 
 		if(Input.GetKeyDown(KeyCode.UpArrow))
@@ -135,7 +147,7 @@ public class Player : MonoBehaviour {
 		}
 	}
 
-	void AddBodyPart()
+	public void AddBodyPart()
 	{
 		Vector3 tailOldPos = tail.transform.position;
 
@@ -170,7 +182,7 @@ public class Player : MonoBehaviour {
 		bodies.Add(body);
 	}
 
-	void DecreaseBodyPart()
+	public void DecreaseBodyPart()
 	{
 		if(bodies.Count > 0)
 		{
@@ -297,6 +309,19 @@ public class Player : MonoBehaviour {
 		}
 	}
 
+	public void IncreaseSpeed()
+	{
+		interval -= 0.1f;
+
+		if(interval < 0.2f)
+			interval = 0.2f;	//max speed!
+	}
+
+	public void DecreaseSpeed()
+	{
+		interval += 0.1f;
+	}
+
 	public void AnimateDead()
 	{
 		StartCoroutine(Die());
@@ -323,5 +348,27 @@ public class Player : MonoBehaviour {
 		AudioSource.PlayClipAtPoint(explosionSound, tail.transform.position);
 		yield return new WaitForSeconds (0.35f);
 		Destroy(tailPart.gameObject);
+	}
+
+	Direction OppositeDirection(Direction direction)
+	{
+		Direction oppositeDirection = direction;
+		switch(direction)
+		{
+		case Direction.Up:
+			oppositeDirection = Direction.Down;
+			break;
+		case Direction.Down:
+			oppositeDirection = Direction.Up;
+			break;
+		case Direction.Left:
+			oppositeDirection = Direction.Right;
+			break;
+		case Direction.Right:
+			oppositeDirection = Direction.Left;
+			break;
+		}
+
+		return oppositeDirection;
 	}
 }

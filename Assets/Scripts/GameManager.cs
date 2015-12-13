@@ -8,14 +8,6 @@ public enum GameState
 	End,
 }
 
-public enum PowerUp
-{
-	IncreaseLength,
-	DecreaseLength,
-	IncreaseSpeed,
-	DecreaseSpeed,
-}
-
 public class GameManager : MonoBehaviour {
 
 	public GameObject playerPrefab;
@@ -23,6 +15,8 @@ public class GameManager : MonoBehaviour {
 	public GameObject HUDCanvas; 
 
 	public GameObject playerHUD;
+
+	public GameObject[] powerUps;
 
 	public GameObject[] tiles; 
 
@@ -46,6 +40,8 @@ public class GameManager : MonoBehaviour {
 
 	List<GameObject> walls;
 
+	List<PowerUp> onFieldPowerUps;
+
 	// Use this for initialization
 	void Start () {
 		currentState = GameState.Playing;
@@ -54,16 +50,17 @@ public class GameManager : MonoBehaviour {
 
 		walls = new List<GameObject>();
 
-		GenerateBackgroundTiles(borderWidth, borderHeight);
+		onFieldPowerUps = new List<PowerUp>();
 
+		GenerateBackgroundTiles(borderWidth, borderHeight);
 
 		AddPlayer(KeyCode.LeftArrow, KeyCode.RightArrow);
 
-		AddPlayer(KeyCode.A, KeyCode.D);
-
-		AddPlayer(KeyCode.Q, KeyCode.E);
-
-		AddPlayer(KeyCode.Z, KeyCode.C);
+//		AddPlayer(KeyCode.A, KeyCode.D);
+//
+//		AddPlayer(KeyCode.Q, KeyCode.E);
+//
+//		AddPlayer(KeyCode.Z, KeyCode.C);
 	}
 	
 	// Update is called once per frame
@@ -228,6 +225,96 @@ public class GameManager : MonoBehaviour {
 
 	void GeneratePowerUps()
 	{
+		GameObject newPowerUp = Instantiate(powerUps[Random.Range(0, powerUps.Length)]);
 
+		bool isEmpty = false;
+		Vector2 newPos = Vector2.zero;
+		while(!isEmpty)
+		{
+			int randomX = Random.Range((int)(borderWidth / 2 * -1), (int)(borderWidth / 2));
+			int randomY = Random.Range((int)(borderHeight / 2 * -1), (int)(borderHeight / 2));
+			newPos = new Vector2(randomX, randomY);
+
+			bool notEmpty = false;
+			foreach(GameObject wall in walls)
+			{
+				if((Vector2)(wall.transform.position) == newPos)
+				{
+					notEmpty = true;
+					break;
+				}
+			}
+
+			if(notEmpty)
+				continue;
+
+			foreach(Player player in players)
+			{
+				if(player.CheckPositionBelongsToPlayer((Vector3)newPos))
+				{
+					notEmpty = true;
+					break;
+				}
+			}
+
+			if(notEmpty)
+				continue;
+
+			foreach(GameObject powerUp in powerUps)
+			{
+				if((Vector2)(powerUp.transform.position) == newPos)
+				{
+					notEmpty = true;
+					break;
+				}
+			}
+
+			if(notEmpty)
+				continue;
+
+			isEmpty = true;
+		}
+
+		//set powerup at new position
+		newPowerUp.transform.position = (Vector3)newPos;
+
+		onFieldPowerUps.Add(newPowerUp.GetComponent<PowerUp>());
+	}
+
+	public void CheckPowerUpAtLocation(Vector3 position, Player player)
+	{
+		PowerUp powerUpEaten = null;
+		foreach(PowerUp powerUp in onFieldPowerUps)
+		{
+			if((Vector2)(powerUp.transform.position) == (Vector2)position)
+			{
+				powerUpEaten = powerUp;
+				break;
+			}
+		}
+
+		if(powerUpEaten != null)
+		{
+			if(powerUpEaten.type == PowerUpType.IncreaseLength ||
+				powerUpEaten.type == PowerUpType.IncreaseSpeed)
+			{
+				powerUpEaten.ApplyPowerUp(player);
+			}
+			else if(powerUpEaten.type == PowerUpType.DecreaseLength ||
+				powerUpEaten.type == PowerUpType.DecreaseSpeed)
+			{
+				foreach(Player p in players)
+				{
+					//apply the debuff to other players
+					if(p != player)
+					{
+						powerUpEaten.ApplyPowerUp(p);
+					}
+				}
+			}
+
+			Destroy(powerUpEaten.gameObject);
+			onFieldPowerUps.Remove(powerUpEaten);
+		}
 	}
 }
