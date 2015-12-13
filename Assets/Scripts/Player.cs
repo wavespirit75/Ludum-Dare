@@ -30,6 +30,8 @@ public class Player : MonoBehaviour {
 
 	public GameManager gameManager;
 
+	public PlayerHUD HUD;
+
 	public float gameOverTimer;
 
 	bool isCountingGameOver = false;
@@ -59,7 +61,7 @@ public class Player : MonoBehaviour {
 		AddBodyPart();
 	}
 		
-	float interval = 0.75f; 
+	float interval = 0.75f;		//this is the movement speed
 	float nextTime = 0;
 	// Update is called once per frame
 	void Update () {
@@ -71,6 +73,7 @@ public class Player : MonoBehaviour {
 		if(isCountingGameOver)
 		{			
 			gameOverTimer += Time.deltaTime;
+			HUD.UpdateHealthBar(100 - (gameOverTimer / gameManager.gameOverTime * 100));
 		}
 
 		if (Time.time >= nextTime) 
@@ -79,6 +82,7 @@ public class Player : MonoBehaviour {
 			{
 				isCountingGameOver = false;
 				gameOverTimer = 0;
+				HUD.UpdateHealthBar(100);	//health back to 100%
 
 				Vector3 previousPos = head.transform.position;
 				MoveObjectInDirection(head, currentDirection);
@@ -124,6 +128,11 @@ public class Player : MonoBehaviour {
 		{
 			AddBodyPart();
 		}
+
+		if(Input.GetKeyDown(KeyCode.DownArrow))
+		{
+			DecreaseBodyPart();
+		}
 	}
 
 	void AddBodyPart()
@@ -163,7 +172,16 @@ public class Player : MonoBehaviour {
 
 	void DecreaseBodyPart()
 	{
+		if(bodies.Count > 0)
+		{
+			BodyParts lastBodyPart = bodies[bodies.Count - 1];
+			Vector3 lastBodyPos = lastBodyPart.transform.position;
 
+			Destroy(lastBodyPart.gameObject);
+			bodies.Remove(lastBodyPart);
+
+			tail.transform.position = lastBodyPos;
+		}
 	}
 
 	Direction GetDirection(Vector3 front, Vector3 back)

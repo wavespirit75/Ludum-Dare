@@ -8,9 +8,21 @@ public enum GameState
 	End,
 }
 
+public enum PowerUp
+{
+	IncreaseLength,
+	DecreaseLength,
+	IncreaseSpeed,
+	DecreaseSpeed,
+}
+
 public class GameManager : MonoBehaviour {
 
 	public GameObject playerPrefab;
+
+	public GameObject HUDCanvas; 
+
+	public GameObject playerHUD;
 
 	public GameObject[] tiles; 
 
@@ -20,7 +32,11 @@ public class GameManager : MonoBehaviour {
 
 	public GameState currentState;
 
-	float gameOverTime = 3.0f;
+	public float gameOverTime = 3.0f;
+
+	float powerUPTime = 5.0f;
+
+	float powerUpTimer = 0.0f;
 
 	float borderWidth = 20;
 
@@ -40,33 +56,30 @@ public class GameManager : MonoBehaviour {
 
 		GenerateBackgroundTiles(borderWidth, borderHeight);
 
-		GameObject player1 = Instantiate(playerPrefab);
-		player1.transform.position = new Vector3(0, 5, 0);
 
-		Player p1 = player1.GetComponent<Player>();
-		p1.gameManager = this;
-		p1.playerIndex = 0;
-		p1.left = KeyCode.LeftArrow;
-		p1.right = KeyCode.RightArrow;
+		AddPlayer(KeyCode.LeftArrow, KeyCode.RightArrow);
 
-		players.Add(p1);
+		AddPlayer(KeyCode.A, KeyCode.D);
 
-		GameObject player2 = Instantiate(playerPrefab);
-		player2.transform.position = new Vector3(0, -5, 0);
+		AddPlayer(KeyCode.Q, KeyCode.E);
 
-		Player p2 = player2.GetComponent<Player>();
-		p2.gameManager = this;
-		p2.playerIndex = 1;
-		p2.left = KeyCode.A;
-		p2.right = KeyCode.D;
-
-		players.Add(p2);
+		AddPlayer(KeyCode.Z, KeyCode.C);
 	}
 	
 	// Update is called once per frame
 	void Update () {
 		if(currentState == GameState.Playing)
 		{
+			if(powerUpTimer > powerUPTime)
+			{
+				GeneratePowerUps();
+				powerUpTimer = 0.0f;
+			}
+			else
+			{
+				powerUpTimer += Time.deltaTime;
+			}
+
 			foreach(Player player in players)
 			{				
 				if(player.gameOverTimer > gameOverTime)
@@ -166,5 +179,55 @@ public class GameManager : MonoBehaviour {
 				}
 			}
 		}
+	}
+
+	void AddPlayer(KeyCode leftKey, KeyCode rightKey)
+	{
+		Vector3 playerInitialPos;
+
+		if(players.Count == 0)
+		{
+			playerInitialPos = new Vector3(5, 0, 0);
+		}
+		else if(players.Count == 1)
+		{
+			playerInitialPos = new Vector3(0, 5, 0);
+		}
+		else if(players.Count == 2)
+		{
+			playerInitialPos = new Vector3(-5, 0, 0);
+		}
+		else
+		{
+			playerInitialPos = new Vector3(0, -5, 0);
+		}
+
+		GameObject player = Instantiate(playerPrefab);
+		player.transform.position = playerInitialPos;
+
+		Player p = player.GetComponent<Player>();
+		p.gameManager = this;
+		p.playerIndex = players.Count;
+		p.left = leftKey;
+		p.right = rightKey;
+
+		players.Add(p);
+
+		int width = 150;
+		int initialX = 80;
+		int initialY = 525;
+		GameObject HUD = Instantiate(playerHUD);
+		HUD.transform.SetParent(HUDCanvas.transform);
+		HUD.transform.position = new Vector3(initialX + p.playerIndex * width, initialY, 0);
+
+		PlayerHUD pHUD = HUD.GetComponent<PlayerHUD>();
+		pHUD.SetupHUD("Player " + p.playerIndex, p.playerIndex);
+
+		p.HUD = pHUD;
+	}
+
+	void GeneratePowerUps()
+	{
+
 	}
 }
