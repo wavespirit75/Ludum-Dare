@@ -258,7 +258,12 @@ public class GameManager : MonoBehaviour {
 			bool isFillWithinBounds = DoFloodFill(fill, victim.head.transform.position, predator, min, max);
 
 			if (isFillWithinBounds)
+			{
 				victim.AnimateDead();
+				victim.isGameOver = true;
+
+				Debug.Log("Player " + victim.playerIndex + " lose!!");
+			}
 		}
 	}
 
