@@ -42,10 +42,17 @@ public class Player : MonoBehaviour {
 
 	Direction previousMoveDirection; // this is to prevent the head to face back itself
 
-	List<BodyParts> bodies;
+	public List<BodyParts> bodies;
+
+	bool hitOwnBody = false;
+
+	// For identifying unique snake player
+	static int ID = 0;
+	public int id = 0;
 
 	void Awake() {
-		
+		id = ID;
+		ID++;
 	}
 
 	// Use this for initialization
@@ -138,7 +145,13 @@ public class Player : MonoBehaviour {
 			{
 				//hit something need to count the game over timer
 				isCountingGameOver = true;
-			}	
+
+				// If hit own body, 100% it means the player formed a "closed area".
+				// If yes, fill up the enclosed area with "kill" counter. Then check against every other player.
+				// If a player's whole body is hit by the kill counters, kill the player.
+				if (hitOwnBody)
+					gameManager.CheckKillEnclosedArea(this);
+			}
 			nextTime = 0;
 		}
 		nextTime += Time.deltaTime;
@@ -159,14 +172,17 @@ public class Player : MonoBehaviour {
 				ChangeCurrentDirection(turnedDirection);
 		}
 
-		if(Input.GetKeyDown(KeyCode.UpArrow))
+		if (id == 0)
 		{
-			AddBodyPart();
-		}
+			if(Input.GetKeyDown(KeyCode.UpArrow))
+			{
+				AddBodyPart();
+			}
 
-		if(Input.GetKeyDown(KeyCode.DownArrow))
-		{
-			DecreaseBodyPart();
+			if(Input.GetKeyDown(KeyCode.DownArrow))
+			{
+				DecreaseBodyPart();
+			}
 		}
 	}
 
@@ -293,6 +309,8 @@ public class Player : MonoBehaviour {
 
 	public bool CheckPositionBelongsToPlayer(Vector3 position)
 	{
+		hitOwnBody = true;
+
 		if(head.transform.position == position || tail.transform.position == position)
 			return true;
 
@@ -302,6 +320,7 @@ public class Player : MonoBehaviour {
 				return true;
 		}
 
+		hitOwnBody = false;
 		return false;
 	}
 
