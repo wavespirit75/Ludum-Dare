@@ -37,7 +37,7 @@ public class GameManager : MonoBehaviour {
 
 	float powerUpTimer = 0.0f;
 
-	float borderWidth = 20;
+	float borderWidth = 32;
 
 	float borderHeight = 20;
 
